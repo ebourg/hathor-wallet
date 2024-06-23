@@ -91,8 +91,19 @@ function LockedWallet() {
    */
   const handleReset = () => {
     context.hideModal();
+    // Remove from list of wallets
+    hathorLib.storage.store.removeWallet(hathorLib.storage.store.prefix);
     dispatch(walletReset());
-    history.push('/welcome/');
+
+    // If there are other wallets, go to screen to choose wallet
+    const firstWallet = wallet.getFirstWalletPrefix();
+    if (firstWallet) {
+      wallet.setWalletPrefix(firstWallet);
+      history.push('/choose_wallet');
+    } else {
+      wallet.setWalletPrefix(null);
+      history.push('/welcome/');
+    }
   }
 
   /**
@@ -138,4 +149,4 @@ function LockedWallet() {
   );
 }
 
-export default LockedWallet;
+export default connect(mapStateToProps, mapDispatchToProps)(LockedWallet);

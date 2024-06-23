@@ -41,7 +41,11 @@ function LoadWallet() {
   const [wordsCount, setWordsCount] = useState(0);
   const wordsInputRef = useRef();
   const dispatch = useDispatch();
-  const { pin, password } = useSelector((state) => ({ pin: state.pin, password: state.password }));
+  const { pin, password, initWalletName } = useSelector((state) => ({
+    pin: state.pin,
+    password: state.password,
+    initWalletName: state.initWalletName
+  }));
   const history = useHistory();
 
   /**
@@ -78,9 +82,15 @@ function LoadWallet() {
   const pinSuccess = () => {
     LOCAL_STORE.unlock();
     // First we clean what can still be there of a last wallet
+    const prefix = wallet.walletNameToPrefix(initWalletName);
+    LOCAL_STORE.addWallet(initWalletName, prefix);
+    wallet.setWalletPrefix(prefix);
+    hathorLib.wallet.setWalletType('software');
     wallet.generateWallet(words, '', pin, password, history);
     LOCAL_STORE.markBackupDone();
+    hathorLib.wallet.markWalletAsStarted(); // XXX: Check if it is redundant with `open`
     LOCAL_STORE.open(); // Mark this wallet as open, so that it does not appear locked after loading
+    this.props.history.push('/wallet/');
     // Clean pin and password from redux
     dispatch(updatePassword(null));
     dispatch(updatePin(null));

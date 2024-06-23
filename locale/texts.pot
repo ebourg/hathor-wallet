@@ -127,6 +127,42 @@ msgid "Must choose an address or auto select"
 msgstr ""
 
 #: src/screens/CreateNFT.js:78
+#: src/screens/ChoosePassphrase.js:161
+#: src/screens/Settings.js:338
+msgid "Set a passphrase"
+msgstr ""
+
+#: src/screens/ChooseWallet.js:163
+#: src/screens/LockedWallet.js:159
+msgid "Unlock"
+msgstr ""
+
+#: src/components/ModalUnhandledError.js:90
+#: src/screens/ChooseWallet.js:168
+msgid "Reset wallet"
+msgstr ""
+
+#: src/screens/ChooseWallet.js:182
+msgid ""
+"Select a Software Wallet or connect to a Hardware Wallet. You may also "
+"start a new Software Wallet."
+msgstr ""
+
+#: src/components/Version.js:36
+#: src/screens/ChooseWallet.js:194
+msgid "Hardware Wallet"
+msgstr ""
+
+#: src/screens/ChooseWallet.js:198
+msgid "Add Software Wallet"
+msgstr ""
+
+#: src/screens/CreateNFT.js:77
+#: src/screens/CreateToken.js:70
+msgid "Must choose an address or auto select"
+msgstr ""
+
+#: src/screens/CreateNFT.js:83
 #, javascript-format
 msgid "Maximum NFT units to mint is ${ hathorLib.constants.MAX_OUTPUT_VALUE }"
 msgstr ""
@@ -916,7 +952,30 @@ msgstr ""
 msgid "Unregister token"
 msgstr ""
 
-#: src/screens/Wallet.js:332
+#: src/screens/Wallet.js:195
+msgid ""
+"You haven't done the backup of your wallet yet. You should do it as soon as "
+"possible for your own safety."
+msgstr ""
+
+#: src/screens/Wallet.js:195
+msgid "Do it now"
+msgstr ""
+
+#: src/screens/Wallet.js:228
+msgid "Administrative Tools"
+msgstr ""
+
+#: src/screens/Wallet.js:256
+msgid "Balance & History"
+msgstr ""
+
+#: src/screens/Wallet.js:259
+#, javascript-format
+msgid "About ${ token.name }"
+msgstr ""
+
+#: src/screens/Wallet.js:282
 #, javascript-format
 msgid ""
 "Are you sure you want to unregister the token **${ token.name } (${ "

@@ -11,6 +11,7 @@ import { t } from 'ttag';
 import logo from '../assets/images/hathor-white-logo.png';
 import Version from './Version';
 import ServerStatus from './ServerStatus';
+import WalletStatus from './WalletStatus';
 import helpers from '../utils/helpers';
 import { useSelector } from 'react-redux';
 
@@ -65,6 +66,7 @@ function Navigation() {
             </li>
           </ul>
           <div className="navbar-right d-flex flex-row align-items-center navigation-search">
+            <WalletStatus />
             <ServerStatus />
             <Version />
           </div>

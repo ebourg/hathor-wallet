@@ -105,13 +105,19 @@ function NewWallet() {
   const pinSuccess = () => {
     // Generate addresses and load data
     LOCAL_STORE.unlock();
+    const prefix = wallet.walletNameToPrefix(initWalletName);
+    LOCAL_STORE.addWallet(initWalletName, prefix);
+    wallet.setWalletPrefix(prefix);
+    hathorLib.wallet.setWalletType('software');
     wallet.generateWallet(words, '', pin, password, history);
+    hathorLib.wallet.markWalletAsStarted(); // XXX: Check if it is redundant with `open`
     // Mark this wallet as open, so that it does not appear locked after loading
     LOCAL_STORE.open();
     // Clean pin, password and words from redux
     dispatch(updatePassword(null));
     dispatch(updatePin(null));
     dispatch(updateWords(null));
+    history.push('/wallet/');
   }
 
   /**

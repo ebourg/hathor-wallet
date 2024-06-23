@@ -226,7 +226,6 @@ export const LEDGER_MAX_VERSION = '2.0.0';
  */
 export const LEDGER_FIRST_CUSTOM_TOKEN_COMPATIBLE_VERSION = '1.1.0'
 
-
 /**
  * Wallet service URLs
  */
@@ -277,3 +276,8 @@ export const FEATURE_TOGGLE_DEFAULTS = {
 export const colors = {
   purpleHathor: scssColors.purpleHathor,
 }
+
+/**
+ * Hardware wallet name on storage
+ */
+export const HARDWARE_WALLET_NAME = '$HARDWARE%'

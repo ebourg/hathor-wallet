@@ -85,4 +85,4 @@ function CustomTokens() {
   );
 }
 
-export default CustomTokens;
+export default connect(mapStateToProps)(CustomTokens);

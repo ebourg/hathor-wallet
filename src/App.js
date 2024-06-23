@@ -22,6 +22,7 @@ import SentryPermission from './screens/SentryPermission';
 import UnknownTokens from './screens/UnknownTokens';
 import Signin from './screens/Signin';
 import LockedWallet from './screens/LockedWallet';
+import ChooseWallet from './screens/ChooseWallet';
 import NewWallet from './screens/NewWallet';
 import WalletType from './screens/WalletType';
 import SoftwareWalletWarning from './screens/SoftwareWalletWarning';
@@ -40,7 +41,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RequestErrorModal from './components/RequestError';
 import createRequestInstance from './api/axiosInstance';
 import hathorLib from '@hathor/wallet-lib';
-import { IPC_RENDERER } from './constants';
+import { IPC_RENDERER, LEDGER_ENABLED } from './constants';
 import AddressList from './screens/AddressList';
 import NFTList from './screens/NFTList';
 import { updateLedgerClosed } from './actions/index';
@@ -72,7 +73,17 @@ function Root() {
   useEffect(() => {
     if (ledgerClosed) {
       LOCAL_STORE.lock();
-      history.push('/locked/');
+      wallet.removeHardwareWalletFromStorage();
+
+      // If there are other wallets, go to screen to choose wallet
+      const firstWallet = wallet.getFirstWalletPrefix();
+      if (firstWallet) {
+        wallet.setWalletPrefix(firstWallet);
+        history.push('/choose_wallet');
+      } else {
+        wallet.setWalletPrefix(null);
+        history.push('/wallet_type/');
+      }
     }
   }, [ledgerClosed]);
 
@@ -83,6 +94,22 @@ function Root() {
    * - Ledger event handlers
    */
   useEffect(() => {
+    // When Ledger device loses connection or the app is closed
+    if (this.props.ledgerClosed && !prevProps.ledgerClosed) {
+      wallet.removeHardwareWalletFromStorage();
+
+      // If there are other wallets, go to screen to choose wallet
+      const firstWallet = wallet.getFirstWalletPrefix();
+      if (firstWallet) {
+        wallet.setWalletPrefix(firstWallet);
+        this.props.history.push('/choose_wallet');
+      } else {
+        wallet.setWalletPrefix(null);
+        this.props.history.push('/wallet_type/');
+      }
+    }
+
+    // ---
     // Detect a previous instalation and migrate
     storageUtils.migratePreviousLocalStorage();
 
@@ -178,6 +205,7 @@ function Root() {
       <Route exact path="/signin" children={<StartedComponent children={ <Signin />} loaded={false} />} />
       <Route exact path="/hardware_wallet" children={<StartedComponent children={ <StartHardwareWallet /> } loaded={false} />} />
       <Route exact path="/locked" children={<DefaultComponent children={<LockedWallet />} />} />
+        <Route exact path="/choose_wallet" component={ChooseWallet} />
       <Route exact path="/welcome" children={<Welcome />} />
       <Route exact path="/loading_addresses" children={<LoadingAddresses />} />
       <Route exact path="/permission" children={<SentryPermission />} />
@@ -196,7 +224,7 @@ function LoadedWalletComponent({ children }) {
 
   // If was closed and is loaded we need to redirect to locked screen
   if ((!isServerScreen) && (LOCAL_STORE.wasClosed() || LOCAL_STORE.isLocked()) && (!LOCAL_STORE.isHardwareWallet())) {
-    return <Redirect to={{ pathname: '/locked/' }} />;
+    return <Redirect to={{ pathname: '/choose_wallet/' }} />;
   }
 
   // We allow server screen to be shown from locked screen to allow the user to
@@ -266,7 +294,7 @@ function StartedComponent({children, loaded: routeRequiresWalletToBeLoaded}) {
     const isServerScreen = history.location.pathname === '/server';
     // Wallet is locked, go to locked screen
     if (LOCAL_STORE.isLocked() && !isServerScreen && !LOCAL_STORE.isHardwareWallet()) {
-      return <Redirect to={{pathname: '/locked/'}}/>;
+      return <Redirect to={{pathname: '/choose_wallet/'}}/>;
     }
 
     // Route requires the wallet to be loaded, render it
@@ -274,8 +302,19 @@ function StartedComponent({children, loaded: routeRequiresWalletToBeLoaded}) {
       return <LoadedWalletComponent children={children} />;
     }
 
+    // XXX: Wallet reseted?
+    const firstWallet = wallet.getFirstWalletPrefix();
+    if (firstWallet && LOCAL_STORE.prefix === '') {
+      return <Redirect to={{pathname: '/choose_wallet/'}}/>;
+    }
+
     // Route does not require wallet to be loaded. Redirect to wallet "home" screen
     return <Redirect to={{pathname: '/wallet/'}}/>;
+  }
+
+  const firstWallet = wallet.getFirstWalletPrefix();
+  if (firstWallet && hathorLib.storage.store.prefix === '') {
+    return <Redirect to={{pathname: '/choose_wallet/'}}/>;
   }
 
   // Wallet is not loaded, but it is still loading addresses. Go to the loading screen
@@ -344,7 +383,13 @@ function DefaultComponent({ children }) {
     LOCAL_STORE.isHardwareWallet()) {
     // This will redirect the page to Wallet Type screen
     LOCAL_STORE.cleanWallet();
-    return <Redirect to={ { pathname: '/wallet_type/' } } />;
+    wallet.removeHardwareWalletFromStorage();
+    hathorLib.wallet.unlock();
+    const firstWallet = wallet.getFirstWalletPrefix();
+    if (firstWallet) {
+      return <Redirect to={{ pathname: '/choose_wallet/' }} />;
+    }
+    return <Redirect to={{ pathname: '/wallet_type/' }} />;
   }
 
   // Render the navigation top bar, the component and the error handling modal
